@@ -55,7 +55,7 @@ public class SellerJDBC implements SellerDao {
             if(resultSet.next()){
                 Department department = new Department(
                         resultSet.getInt("DepartmentId"),
-                        resultSet.getString("DepartmentName")
+                        resultSet.getString("DepName")
                 );
 
                 Seller seller = new Seller(
@@ -66,10 +66,11 @@ public class SellerJDBC implements SellerDao {
                         department
 
                 );
+                return seller;
             }
             return null;
         } catch(SQLException exception){
-            throw new DBException(exception.getMessage());
+            throw   new DBException(exception.getMessage());
         } finally {
             DB.closeStatement(preparedStatement);
             DB.closeResultSet(resultSet);
