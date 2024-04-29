@@ -21,7 +21,7 @@ public class SellerJDBC implements SellerDao {
 
     @Override
     public void insert(Seller seller) {
-        PreparedStatement preparedStatement;
+        PreparedStatement preparedStatement = null;
 
         try{
             preparedStatement = connection.prepareStatement(
@@ -53,12 +53,39 @@ public class SellerJDBC implements SellerDao {
             }
         }catch (SQLException exception){
             throw new DBException(exception.getMessage());
+        } finally {
+            DB.closeStatement(preparedStatement);
         }
     }
 
     @Override
     public void update(Seller seller) {
+        PreparedStatement preparedStatement = null;
 
+        try{
+            preparedStatement = connection.prepareStatement(
+                    """
+                    UPDATE seller
+                    SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ?
+                    WHERE Id = ?
+                    """,
+                    PreparedStatement.RETURN_GENERATED_KEYS
+            );
+
+            preparedStatement.setString(1, seller.getName());
+            preparedStatement.setString(2, seller.getEmail());
+            preparedStatement.setDate(3, new Date(seller.getBirthDate().getTime()));
+            preparedStatement.setDouble(4, seller.getBaseSalary());
+            preparedStatement.setInt(5, seller.getDepartment().getId());
+            preparedStatement.setInt(6, seller.getId());
+
+            preparedStatement.executeUpdate();
+
+        }catch (SQLException exception){
+            throw new DBException(exception.getMessage());
+        } finally {
+            DB.closeStatement(preparedStatement);
+        }
     }
 
     @Override
